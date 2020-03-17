@@ -1,0 +1,17 @@
+﻿<div class="col d-flex align-items-stretch">
+    <div class="card w-100 @(Month.MonthStartDateTime.Month == DayDateTime.Month ? "" : "bg-secondary")">
+        <div class="card-body">
+            <h6 class="card-title" id="@int.Parse(DayDateTime.ToString("yyyyMMdd"))">@DayDateTime.Day</h6>
+            <Dropzone Name="@DayDateTime.ToString("yyyyMMdd")" class="card-dropzone w-100">
+            </Dropzone>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DateTime DayDateTime { get; set; }
+
+    [CascadingParameter]
+    Month Month { get; set; }
+}

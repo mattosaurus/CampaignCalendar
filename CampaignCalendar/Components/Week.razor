@@ -1,0 +1,20 @@
+﻿<div class="row no-gutters">
+    @foreach (DateTime day in Days)
+    {
+    <CascadingValue Value="this">
+        <Day DayDateTime="day"></Day>
+    </CascadingValue>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public List<DateTime> Days { get; set; }
+
+    [CascadingParameter]
+    Month Month { get; set; }
+}

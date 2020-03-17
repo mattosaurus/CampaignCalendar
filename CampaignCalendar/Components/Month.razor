@@ -1,0 +1,18 @@
+﻿
+@foreach (List<DateTime> week in Weeks)
+{
+    <CascadingValue Value="this">
+        <Week Days="week">
+        </Week>
+    </CascadingValue>
+}
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public List<List<DateTime>> Weeks { get; set; }
+
+    [Parameter]
+    public DateTime MonthStartDateTime { get; set; }
+}

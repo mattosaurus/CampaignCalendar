@@ -1,0 +1,148 @@
+﻿@page "/calendar"
+@page "/calendar/{Year:int}/{Month:int}"
+
+<h3>Campaign Calendar</h3>
+
+<p>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Month) @Year</p>
+
+<div class="row no-gutters">
+    <div class="col">
+        <h5>Monday</h5>
+    </div>
+    <div class="col">
+        <h5>Tuesday</h5>
+    </div>
+    <div class="col">
+        <h5>Wednesday</h5>
+    </div>
+    <div class="col">
+        <h5>Thursday</h5>
+    </div>
+    <div class="col">
+        <h5>Friday</h5>
+    </div>
+    <div class="col">
+        <h5>Saturday</h5>
+    </div>
+    <div class="col">
+        <h5>Sunday</h5>
+    </div>
+</div>
+<Month Weeks="@GetMonthDays(Year, Month)" MonthStartDateTime="@TargetDate">
+</Month>
+<div class="row">
+    <div class="col">
+        &nbsp;
+    </div>
+</div>
+<div class="row no-gutters">
+    <Dropzone>
+        <div class="col">
+            <Draggable>
+                <li>
+                    <p class="description">Cras justo odio</p>
+                </li>
+            </Draggable>
+        </div>
+        <div class="col">
+            <Draggable>
+                <li>
+                    <p class="description">Morbi leo risus</p>
+                </li>
+            </Draggable>
+        </div>
+    </Dropzone>
+</div>
+<div class="row">
+    <div class="col">
+        &nbsp;
+    </div>
+</div>
+<div class="row no-gutters">
+    <div class="col">
+        <a class="btn btn-primary" href="Calendar/@TargetDate.AddMonths(-1).Year/@TargetDate.AddMonths(-1).Month" @onclick="PreviousMonth">Previous</a>
+    </div>
+    <div class="col w-100">
+        &nbsp;
+    </div>
+    <div class="col text-right">
+        <a class="btn btn-primary" href="Calendar/@TargetDate.AddMonths(1).Year/@TargetDate.AddMonths(1).Month" @onclick="@NextMonth">Next</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        &nbsp;
+    </div>
+</div>
+
+@code {
+    [Inject]
+    public DragDropService DragDropService {get; set;}
+
+    [Parameter]
+    public int Year { get; set; }
+
+    [Parameter]
+    public int Month { get; set; }
+
+    public DateTime TargetDate { get; set; }
+
+    List<CampaignModel> Campaigns = new List<CampaignModel>();
+    Dictionary<DateTime, List<CampaignModel>> AssignedCampaigns = new Dictionary<DateTime, List<CampaignModel>>();
+
+    protected override void OnInitialized()
+    {
+        Year = Year == 0 ? DateTime.Now.Year : Year;
+        Month = Month == 0 ? DateTime.Now.Month : Month;
+        TargetDate = new DateTime(Year, Month, 1);
+    }
+
+    public void NextMonth()
+    {
+        Year = TargetDate.AddMonths(1).Year;
+        Month = TargetDate.AddMonths(1).Month;
+        TargetDate = new DateTime(Year, Month, 1);
+    }
+
+    public void PreviousMonth()
+    {
+        Year = TargetDate.AddMonths(-1).Year;
+        Month = TargetDate.AddMonths(-1).Month;
+        TargetDate = new DateTime(Year, Month, 1);
+    }
+
+    private static List<List<DateTime>> GetMonthDays(int year, int month)
+    {
+        DateTime firstDayOfMonth = new DateTime(year, month, 1);
+        DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+        // If first day of month is not a monday then include all the days before it
+        if (firstDayOfMonth.DayOfWeek != DayOfWeek.Monday)
+        {
+            while (firstDayOfMonth.DayOfWeek != DayOfWeek.Monday)
+            {
+                firstDayOfMonth = firstDayOfMonth.AddDays(-1);
+            }
+        }
+
+        // If last day of month is not a sunday then we want to include all days after it
+        if (lastDayOfMonth.DayOfWeek != DayOfWeek.Sunday)
+        {
+            while (lastDayOfMonth.DayOfWeek != DayOfWeek.Sunday)
+            {
+                lastDayOfMonth = lastDayOfMonth.AddDays(1);
+            }
+        }
+
+        List<DateTime> days = new List<DateTime>();
+
+        for (DateTime day = firstDayOfMonth; day <= lastDayOfMonth; day = day.AddDays(1))
+        {
+            days.Add(day);
+        }
+
+        List<List<DateTime>> weeks = days.ChunkBy(7);
+
+        return weeks;
+    }
+}
